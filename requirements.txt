@@ -1,0 +1,12 @@
+numpy
+opencv-python
+opencv-contrib-python
+tensorflow
+keras
+matplotlib
+numpy
+scikit-learn
+scipy
+tensorboard
+tensorflow
+fastapi
