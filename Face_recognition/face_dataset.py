@@ -38,4 +38,3 @@ def read_data(customerId):
     print("\n [INFO] Exiting Program and cleanup stuff")
     cam.release()
     cv2.destroyAllWindows()
-read_data(12)
