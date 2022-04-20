@@ -53,17 +53,8 @@ async def websocket_endpoint(websocket: WebSocket):
     while True:
         customerId = await websocket.receive_text()
         read_data(customerId)
-        await websocket.send_text(f"Message text was: {customerId}")
+        await websocket.send_text(f"Customer with the Id: {customerId}, can enter the store")
 
 
 if __name__ == "__main__":
-    uvicorn.run("main:app", host='0.0.0.0', port=8005, debug=True)
-
-
-
-"""
-. order easy app  - train and work
-. frame - start session - qr code - customerid+dt+start/stop
-. post api - will get a post call
-. 8 members -  customers
-"""
+    uvicorn.run("main:app", host='0.0.0.0', port=8000, debug=True)
