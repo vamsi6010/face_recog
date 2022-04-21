@@ -8,9 +8,7 @@ cascadePath = cv2.data.haarcascades+"haarcascade_frontalface_default.xml"
 faceCascade = cv2.CascadeClassifier(cascadePath);
 font = cv2.FONT_HERSHEY_SIMPLEX
 # iniciate id counter
-id = 0
 # names related to ids: example ==> Marcelo: id=1,  etc
-names = ['None','vamsi','jeff']
 # Initialize and start realtime video capture
 cam = cv2.VideoCapture(0)
 cam.set(3, 640)  # set video widht
@@ -36,7 +34,6 @@ while True:
         # If confidence is less them 100 ==> "0" : perfect match
         if (confidence < 100):
             print(id)
-            id = names[id]
             confidence = "  {0}%".format(round(100 - confidence))
         else:
             id = "unknown"

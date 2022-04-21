@@ -1,5 +1,5 @@
-numpy
-opencv-python
+numpy~=1.22.3
+opencv-python~=4.5.5.64
 opencv-contrib-python
 tensorflow
 keras
@@ -9,4 +9,6 @@ scikit-learn
 scipy
 tensorboard
 tensorflow
-fastapi
+fastapi~=0.75.2
+uvicorn~=0.17.6
+Pillow~=9.1.0

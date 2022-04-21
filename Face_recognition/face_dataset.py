@@ -1,7 +1,8 @@
 import cv2
 import os
 def read_data(customerId):
-    cam = cv2.VideoCapture(0)       ## we should use the entry camera
+    url = "http://192.168.100.52:8080/video"
+    cam = cv2.VideoCapture(url)       ## we should use the entry camera
     cam.set(3, 640) # set video width
     cam.set(4, 480) # set video height
 
@@ -10,7 +11,6 @@ def read_data(customerId):
     # For each person, enter one numeric face id
     # face_id = input('\n enter user id end press <return> ==>  ')
     face_id = customerId
-
     print("\n [INFO] Initializing face capture. Look the camera and wait ...")
     # Initialize individual sampling face count
     count = 0

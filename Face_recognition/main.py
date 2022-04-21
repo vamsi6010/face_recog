@@ -2,7 +2,7 @@ from fastapi import FastAPI, WebSocket
 from fastapi.responses import HTMLResponse
 import uvicorn
 from face_dataset import *
-
+from trainer import getImagesAndLabels
 app = FastAPI()
 
 html = """
@@ -12,7 +12,7 @@ html = """
         <title>Chat</title>
     </head>
     <body>
-        <h1>WebSocket Chat</h1>
+        <h1>Customer Name to be tracked</h1>
         <form action="" onsubmit="sendMessage(event)">
             <input type="text" id="messageText" autocomplete="off"/>
             <button>Send</button>
@@ -54,6 +54,7 @@ async def websocket_endpoint(websocket: WebSocket):
         customerId = await websocket.receive_text()
         read_data(customerId)
         await websocket.send_text(f"Customer with the Id: {customerId}, can enter the store")
+        getImagesAndLabels()
 
 
 if __name__ == "__main__":
