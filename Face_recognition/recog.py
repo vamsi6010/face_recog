@@ -10,7 +10,7 @@ font = cv2.FONT_HERSHEY_SIMPLEX
 # iniciate id counter
 # names related to ids: example ==> Marcelo: id=1,  etc
 # Initialize and start realtime video capture
-cam = cv2.VideoCapture(0)
+cam = cv2.VideoCapture("http://192.168.100.52:8080/video")
 cam.set(3, 640)  # set video widht
 cam.set(4, 480)  # set video height
 # Define min window size to be recognized as a face

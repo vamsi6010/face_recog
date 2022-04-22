@@ -12,7 +12,7 @@ html = """
         <title>Chat</title>
     </head>
     <body>
-        <h1>Customer Name to be tracked</h1>
+        <h1>WebSocket Chat</h1>
         <form action="" onsubmit="sendMessage(event)">
             <input type="text" id="messageText" autocomplete="off"/>
             <button>Send</button>
@@ -49,6 +49,7 @@ async def get():
 
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
+# web socket used for customer Entrance
     await websocket.accept()
     while True:
         customerId = await websocket.receive_text()
@@ -56,6 +57,23 @@ async def websocket_endpoint(websocket: WebSocket):
         await websocket.send_text(f"Customer with the Id: {customerId}, can enter the store")
         getImagesAndLabels()
 
+# @app.websocket("/customerstatus")
+# async def websocket_2(websocket: WebSocket):
+#     await websocket.accept()
+#     while True:
+#         customerId, session_status = await websocket.receive_text()
+#         customer_data = {'id':customerId, 'status':session_status}
+#         await websocket.send_text(f"Session details of the customer {customer_data}")
+
+
+# @app.websocket("/ws")
+# async def websocket_2(websocket: WebSocket):
+#     await websocket.accept()
+#     while True:
+#         customerId, session_status = await websocket.receive_text()
+#         customer_data = {'id':customerId, 'status':session_status}
+#         await websocket.send_text(f"Customer with the Id: {customer_data} can enter the store")
+#
 
 if __name__ == "__main__":
     uvicorn.run("main:app", host='0.0.0.0', port=8000, debug=True)

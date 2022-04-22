@@ -10,6 +10,7 @@ def getImagesAndLabels():
     # function to get the images and label data
     print("\n [INFO] Training faces. It will take a few seconds. Wait ...")
     imagePaths = [os.path.join(path,f) for f in os.listdir(path)]
+    print(imagePaths)
     faceSamples=[]
     ids = []
     for imagePath in imagePaths:
@@ -28,3 +29,6 @@ def face_trainer(faces,ids):
     recognizer.write('trainer/trainer.yml')
     # Print the numer of faces trained and end program
     return print("\n [INFO] {0} faces trained. Exiting Program".format(len(np.unique(ids))))
+
+
+# getImagesAndLabels()
