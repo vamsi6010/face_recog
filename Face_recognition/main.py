@@ -86,7 +86,7 @@ def extractResult(data):
     return (tupleval)
 
 @app.post("/fetch_name")
-async def logout(request:Request):
+async def fetch_name(request:Request):
     customer_dtl = await request.json()
     select_q="select custName from customer_summary where cId={}".format(customer_dtl["cid"])
     print(select_q)
@@ -96,7 +96,7 @@ async def logout(request:Request):
     return {"name": custName}
 
 @app.post("/cart_insert")
-async def login_start(request: Request):
+async def cart_insert(request: Request):
     customer_dtl = await request.json()
     insert_q="insert into cart_values(cId, productId, qty, rate) values ('{}','{}','{}','{}')".format(
         customer_dtl["id"],customer_dtl["productId"],customer_dtl["qty"],customer_dtl["rate"])
@@ -104,6 +104,13 @@ async def login_start(request: Request):
     executeInsertQuery(insert_q)
     return "success"
 
+@app.post("/cart_update")
+async def cart_update(request: Request):
+    customer_dtl = await request.json()
+    update_q="update a set qty = {} from cart_Values a inner join customer_summary b on a.cId = b.cId where b.inStatus = 'IN' and b.cId = {} and a.productId = {}".format(
+              customer_dtl["qty"],customer_dtl["id"],customer_dtl["productId"])
+    executeInsertQuery(update_q)
+    return "Success"
 
 @app.get("/cartFetch")
 async def cart(request: Request):
