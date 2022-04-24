@@ -7,10 +7,10 @@ from fastapi.middleware.cors import CORSMiddleware
 import pyodbc
 from datetime import datetime,date
 
-server="localhost\gft"
+server="localhost"
 database="deep_vision"
-username="rpos6"
-pwd="t3m62uP@NZ"
+username="sa"
+pwd="G@krishna18"
 
 
 app = FastAPI()
@@ -28,11 +28,11 @@ import time
 from fastapi import Request
 from datetime import datetime
 
-entrance_camera = "http://10.42.0.109:8080/video"
+entrance_camera = "http://10.42.0.132:8080/video"
 
 def executeInsertQuery(query):
     conn = pyodbc.connect(
-        'Driver={SQL Server};Server=' + server + ';Database=' + database + ';UID=' + username + ';PWD=' + pwd)
+        'Driver={/opt/microsoft/msodbcsql17/lib64/libmsodbcsql-17.8.so.1.1};Server=' + server + ';Database=' + database + ';UID=' + username + ';PWD=' + pwd)
     cursor = conn.cursor()
     cursor.execute(query)
     conn.commit()
@@ -40,7 +40,7 @@ def executeInsertQuery(query):
 
 def executeSelectQuery(query):
     conn = pyodbc.connect(
-        'Driver={SQL Server};Server=' + server + ';Database=' + database + ';UID=' + username + ';PWD=' + pwd)
+        'Driver={/opt/microsoft/msodbcsql17/lib64/libmsodbcsql-17.8.so.1.1};Server=' + server + ';Database=' + database + ';UID=' + username + ';PWD=' + pwd)
     cursor = conn.cursor()
     cursor.execute(query)
     result = cursor.fetchall()
@@ -60,10 +60,10 @@ async def login_start(request: Request):
             customer_dtl["tranDate"],customer_dtl["cid"],customer_dtl["inTime"],customer_dtl["inStatus"],customer_dtl["name"])
     print(insert_q)
     executeInsertQuery(insert_q)
-    read_data(customer_dtl["cid"], entrance_camera)
-    faces, ids = getImagesAndLabels(path)
-    recognizer.train(faces, np.array(ids))
-    recognizer.write('trainer/trainer.yml')
+    # read_data(customer_dtl["cid"], entrance_camera)
+    # faces, ids = getImagesAndLabels(path)
+    # recognizer.train(faces, np.array(ids))
+    # recognizer.write('trainer/trainer.yml')
     return "Success"
 
 
@@ -134,7 +134,7 @@ async def cart(request: Request):
 @app.get("/metrics")
 async def metrics(request: Request):
     conn = pyodbc.connect(
-        'Driver={SQL Server};Server=' + server + ';Database=' + database + ';UID=' + username + ';PWD=' + pwd)
+        'Driver={/opt/microsoft/msodbcsql17/lib64/libmsodbcsql-17.8.so.1.1};Server=' + server + ';Database=' + database + ';UID=' + username + ';PWD=' + pwd)
     cursor = conn.cursor()
     stats = {}
 
@@ -167,7 +167,7 @@ async def metrics(request: Request):
         if fields == 0:
             listval = data[0]
             tupleval = listval[0]
-            return float(tupleval)
+            return (tupleval)
         else:
             json_query_result = []
             for rows in data:
