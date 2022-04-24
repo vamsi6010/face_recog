@@ -1,7 +1,8 @@
 import cv2
 import os
-def read_data(customerId):
-    cam = cv2.VideoCapture(0)       ## we should use the entry camera
+def read_data(face_id , entrance_camera):
+
+    cam = cv2.VideoCapture(entrance_camera)       ## we should use the entry camera
     cam.set(3, 640) # set video width
     cam.set(4, 480) # set video height
 
@@ -9,7 +10,7 @@ def read_data(customerId):
 
     # For each person, enter one numeric face id
     # face_id = input('\n enter user id end press <return> ==>  ')
-    face_id = customerId
+    # face_id = customerId
 
     print("\n [INFO] Initializing face capture. Look the camera and wait ...")
     # Initialize individual sampling face count
@@ -29,12 +30,14 @@ def read_data(customerId):
             cv2.imshow('image', img)
 
         k = cv2.waitKey(100) & 0xff # Press 'ESC' for exiting video
-        if k == 27:
+        if k == 270:
             break
-        elif count >= 30: # Take 200 face sample and stop video
+        elif count >= 300: # Take 200 face sample and stop video
              break
 
     # Do a bit of cleanup
     print("\n [INFO] Exiting Program and cleanup stuff")
     cam.release()
     cv2.destroyAllWindows()
+
+# read_data(3 , "http://10.42.0.80:8080/video")

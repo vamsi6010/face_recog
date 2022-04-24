@@ -10,3 +10,5 @@ scipy
 tensorboard
 tensorflow
 fastapi
+mediapipe
+uvicorn
