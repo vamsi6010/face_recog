@@ -11,6 +11,8 @@ server = "localhost"
 database = "deep_vision"
 username = "sa"
 pwd = "G@krishna18"
+# username = "rpos6"
+# pwd = "t3m62uP@NZ"
 
 app = FastAPI()
 origins = ["*"]
@@ -28,7 +30,8 @@ from fastapi import Request
 from datetime import datetime
 
 entrance_camera = "http://10.42.0.132:8080/video"
-
+# 'Driver={/opt/microsoft/msodbcsql17/lib64/libmsodbcsql-17.8.so.1.1};Server=' + server + ';Database=' + database + ';UID=' + username + ';PWD=' + pwd)}
+# Driver={SQL SERVER}
 
 def executeInsertQuery(query):
     conn = pyodbc.connect(
@@ -160,6 +163,21 @@ async def cart(request: Request):
     print(json_query_result)
     return json_query_result
 
+@app.post("/cartFetchAll")
+async def cartFetchall(request: Request):
+    # customer_dtl = await request.json()
+    select_q="select a.cId, inStatus, productId from cart_values a inner join customer_summary b on a.cId = b.cId where inStatus = 'in'"
+    cname = executeSelectQuery(select_q)
+    print(cname)
+    fields = {"cid": 0, "status": 1, "itemid": 2}
+    json_query_result = []
+    for rows in cname:
+        json_struct = {}
+        for field, index in fields.items():
+            json_struct[field] = rows[index]
+        json_query_result.append(json_struct)
+    print(json_query_result)
+    return json_query_result
 
 @app.get("/metrics")
 async def metrics(request: Request):
@@ -179,12 +197,12 @@ async def metrics(request: Request):
     getOppurtunityLost = "select abs(sum(qty*rate)) oppurtunityLost from cart_values where qty<0"
 
     getProductReturnedtoShelf = "select top 3 productName,cart_values.productId,"
-    getProductReturnedtoShelf += "count(cart_values.productId) occurrences from cart_values "
+    getProductReturnedtoShelf += "count(cart_values.productId) occurrences,productUrl from cart_values "
     getProductReturnedtoShelf += "inner join products on cart_values.productId=products.productId where qty<0 "
     getProductReturnedtoShelf += "group by productName,cart_values.productId,rate order by occurrences desc"
 
     getAttentionSeeks = "select top 3 productName,cart_values.productId, "
-    getAttentionSeeks += "count(cart_values.productId) occurrences "
+    getAttentionSeeks += "count(cart_values.productId) occurrences,productUrl "
     getAttentionSeeks += "from cart_values inner join products on cart_values.productId=products.productId "
     getAttentionSeeks += "group by productName,cart_values.productId,rate order by occurrences desc"
 
