@@ -199,12 +199,12 @@ async def metrics(request: Request):
     getProductReturnedtoShelf = "select top 3 productName,cart_values.productId,"
     getProductReturnedtoShelf += "count(cart_values.productId) occurrences,productUrl from cart_values "
     getProductReturnedtoShelf += "inner join products on cart_values.productId=products.productId where qty<0 "
-    getProductReturnedtoShelf += "group by productName,cart_values.productId,rate order by occurrences desc"
+    getProductReturnedtoShelf += "group by productName,cart_values.productId,rate,productUrl order by occurrences desc"
 
     getAttentionSeeks = "select top 3 productName,cart_values.productId, "
     getAttentionSeeks += "count(cart_values.productId) occurrences,productUrl "
     getAttentionSeeks += "from cart_values inner join products on cart_values.productId=products.productId "
-    getAttentionSeeks += "group by productName,cart_values.productId,rate order by occurrences desc"
+    getAttentionSeeks += "group by productName,cart_values.productId,rate,productUrl order by occurrences desc"
 
     def executeQuery(query):
         cursor.execute(query)
@@ -231,7 +231,7 @@ async def metrics(request: Request):
 
     fields = {"itemName": 0, "itemCode": 1, "count": 2 , "imageSrc": 3,
 "expiryDate": 4,"price": 5,"categoryName":6 , "Biscuits":7}
-    fields1 = {"itemName": 0, "itemCode": 1, "count": 2}
+    fields1 = {"itemName": 0, "itemCode": 1, "count": 2,"imageUrl":3}
     keyVal = {'liveCount': (getCustInStore, 0), 'uniqueCustomers': (getUniqueCustomers, 0),
               "avgTimerPerCustomer": (getAverageTimeSpent, 0), "opportunityLost": (getOppurtunityLost, 0),
               "attentionSeekingProducts": (getProductReturnedtoShelf, fields1),
