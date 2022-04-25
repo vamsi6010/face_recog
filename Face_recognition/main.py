@@ -1,8 +1,8 @@
 from fastapi import FastAPI, WebSocket
 from fastapi.responses import HTMLResponse
 import uvicorn
-from face_dataset import *
-from trainer import *
+# from face_dataset import *
+# from trainer import *
 from fastapi.middleware.cors import CORSMiddleware
 import pyodbc
 from datetime import datetime, date
@@ -69,10 +69,10 @@ async def login_start(request: Request):
 
     print(insert_q)
     executeInsertQuery(insert_q)
-    read_data(customer_dtl["cid"], entrance_camera)
-    faces, ids = getImagesAndLabels(path)
-    recognizer.train(faces, np.array(ids))
-    recognizer.write('trainer/trainer.yml')
+    # read_data(customer_dtl["cid"], entrance_camera)
+    # faces, ids = getImagesAndLabels(path)
+    # recognizer.train(faces, np.array(ids))
+    # recognizer.write('trainer/trainer.yml')
     return "Success"
 
 
@@ -211,17 +211,19 @@ async def metrics(request: Request):
     def genDictionary(keystr, value):
         stats[keystr] = value
 
-    fields = {"productName": 0, "productId": 1, "occurrences": 2}
-    keyVal = {'customerInStore': (getCustInStore, 0), 'VisitedCustomersCount': (getUniqueCustomers, 0),
-              "AverageTimeSpent": (getAverageTimeSpent, 0), "OppurtunityLost": (getOppurtunityLost, 0),
-              "ReturnedToShelf": (getProductReturnedtoShelf, fields),
-              "MostAttentionSeeks": (getAttentionSeeks, fields)}
+    fields = {"itemName": 0, "itemCode": 1, "count": 2 , "imageSrc": 3,
+"expiryDate": 4,"price": 5,"categoryName":6 , "Biscuits":7}
+    fields1 = {"itemName": 0, "itemCode": 1, "count": 2}
+    keyVal = {'liveCount': (getCustInStore, 0), 'uniqueCustomers': (getUniqueCustomers, 0),
+              "avgTimerPerCustomer": (getAverageTimeSpent, 0), "opportunityLost": (getOppurtunityLost, 0),
+              "attentionSeekingProducts": (getProductReturnedtoShelf, fields1),
+              "mostViewedProducts": (getAttentionSeeks, fields1)}
     for key, value in keyVal.items():
         query_result = executeQuery(value[0])
         extracted_value = extractValueFromQueryResult(query_result, value[1])
         genDictionary(key, extracted_value)
     print(stats)
-    return {"stats": stats}
+    return  stats
 
 
 if __name__ == "__main__":
