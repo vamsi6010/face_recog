@@ -8,9 +8,14 @@ import copy
 
 
 url = "http://10.42.0.10:8000"
-names = requests.get(url + "/fetch_name")
-Object_cam = "http://10.42.0.132:8080/video"
-face_cam = "http://10.42.0.145:8080/video"
+names = (requests.get(url + "/fetch_name")).json()
+name_mod = {}
+for name in names:
+    name_mod[name["cid"]]=name["cName"]
+names = name_mod
+# print(names)
+Object_cam = "http://10.42.0.145:8080/video"
+face_cam = "http://10.42.0.132:8080/video"
 
 
 def rescale_frame(frame, percent=50):
@@ -174,7 +179,7 @@ while True:
             else:
                 virtual_cart[id] = [{pid:"in"}]
                 requests.post(url + "/cart_insert", json={"id": cid, "productId": pid, "qty": 1, "rate": 140})
-
+        #
 
 
         else:
