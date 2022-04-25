@@ -5,13 +5,12 @@ from face_dataset import *
 from trainer import *
 from fastapi.middleware.cors import CORSMiddleware
 import pyodbc
-from datetime import datetime,date
+from datetime import datetime, date
 
-server="localhost"
-database="deep_vision"
-username="sa"
-pwd="G@krishna18"
-
+server = "localhost"
+database = "deep_vision"
+username = "sa"
+pwd = "G@krishna18"
 
 app = FastAPI()
 origins = ["*"]
@@ -30,6 +29,7 @@ from datetime import datetime
 
 entrance_camera = "http://10.42.0.132:8080/video"
 
+
 def executeInsertQuery(query):
     conn = pyodbc.connect(
         'Driver={/opt/microsoft/msodbcsql17/lib64/libmsodbcsql-17.8.so.1.1};Server=' + server + ';Database=' + database + ';UID=' + username + ';PWD=' + pwd)
@@ -37,6 +37,7 @@ def executeInsertQuery(query):
     cursor.execute(query)
     conn.commit()
     conn.close()
+
 
 def executeSelectQuery(query):
     conn = pyodbc.connect(
@@ -46,81 +47,110 @@ def executeSelectQuery(query):
     result = cursor.fetchall()
     return result
 
+
 @app.post("/login_start")
 async def login_start(request: Request):
     customer_dtl = await request.json()
     # {"cid": "1","name": "Jeffrey"}
     print(datetime.now().strftime("%H:%M:%S"))
     customer_dtl["inStatus"] = "IN"  # {"cid": "1","name": "Jeffrey"}
-    customer_dtl["inTime"] = datetime.now().strftime("%H:%M:%S")    
-    customer_dtl["tranDate"]=  date.today()
+    customer_dtl["inTime"] = datetime.now().strftime("%H:%M:%S")
+    customer_dtl["tranDate"] = date.today()
     print(customer_dtl)
-        # insert in sql table
-    insert_q= "insert into customer_summary(trandate, cId, inTime, inStatus,custName) values('{}',{},'{}','{}','{}')".format(
-            customer_dtl["tranDate"],customer_dtl["cid"],customer_dtl["inTime"],customer_dtl["inStatus"],customer_dtl["name"])
+    # insert in sql table
+    insert_q = "insert into customer_summary(trandate, cId, inTime, inStatus,custName) values('{}',{},'{}','{}','{}')".format(
+        customer_dtl["tranDate"], customer_dtl["cid"], customer_dtl["inTime"], customer_dtl["inStatus"],
+        customer_dtl["name"])
+
     print(insert_q)
     executeInsertQuery(insert_q)
-    # read_data(customer_dtl["cid"], entrance_camera)
-    # faces, ids = getImagesAndLabels(path)
-    # recognizer.train(faces, np.array(ids))
-    # recognizer.write('trainer/trainer.yml')
+    insert_q = "insert into customers(cId, cName) values('{}','{}')".format(customer_dtl["cid"],
+                                                                            customer_dtl["name"])
+
+    print(insert_q)
+    executeInsertQuery(insert_q)
+    read_data(customer_dtl["cid"], entrance_camera)
+    faces, ids = getImagesAndLabels(path)
+    recognizer.train(faces, np.array(ids))
+    recognizer.write('trainer/trainer.yml')
     return "Success"
 
 
 @app.post("/logout")
-async def logout(request:Request):
+async def logout(request: Request):
     customer_dtl = await request.json()
     customer_dtl["outTime"] = datetime.now().strftime("%H:%M:%S")
     customer_dtl["inStatus"] = "OUT"
     customer_dtl["tranDate"] = date.today()
     # update in sql table
-    update_q="update customer_summary set outTime='{}',inStatus='OUT' where cId='{}' and trandate='{}'".format(
-        customer_dtl["outTime"],customer_dtl["cid"],customer_dtl["tranDate"])
+    update_q = "update customer_summary set outTime='{}',inStatus='OUT' where cId='{}' and trandate='{}'".format(
+        customer_dtl["outTime"], customer_dtl["cid"], customer_dtl["tranDate"])
     print(update_q)
     executeInsertQuery(update_q)
     return "Success"
+
 
 def extractResult(data):
     listval = data[0]
     tupleval = listval[0]
     return (tupleval)
 
-@app.post("/fetch_name")
-async def fetch_name(request:Request):
-    customer_dtl = await request.json()
-    select_q="select custName from customer_summary where cId={}".format(customer_dtl["cid"])
+
+@app.get("/fetch_name")
+async def fetch_name():
+    select_q = "select * from customers"
     print(select_q)
-    cname=executeSelectQuery(select_q)
+    cname = executeSelectQuery(select_q)
     print(cname)
-    custName=extractResult(cname)
-    return {"name": custName}
+    
+
+    def extractValueFromQueryResult(data, fields):
+        if fields == 0:
+            listval = data[0]
+            tupleval = listval[0]
+            return (tupleval)
+        else:
+            json_query_result = []
+            for rows in data:
+                json_struct = {}
+                for field, index in fields.items():
+                    json_struct[field] = rows[index]
+                json_query_result.append(json_struct)
+            # print(json_query_result)
+            return json_query_result
+
+    return extractValueFromQueryResult(cname, {"cid": 0, "cName": 1})
+    # custName=extractResult(cname)
+
 
 @app.post("/cart_insert")
 async def cart_insert(request: Request):
     customer_dtl = await request.json()
-    insert_q="insert into cart_values(cId, productId, qty, rate) values ('{}','{}','{}','{}')".format(
-        customer_dtl["id"],customer_dtl["productId"],customer_dtl["qty"],customer_dtl["rate"])
+    insert_q = "insert into cart_values(cId, productId, qty, rate) values ('{}','{}','{}','{}')".format(
+        customer_dtl["id"], customer_dtl["productId"], customer_dtl["qty"], customer_dtl["rate"])
     print(insert_q)
     executeInsertQuery(insert_q)
     return "success"
 
+
 @app.post("/cart_update")
 async def cart_update(request: Request):
     customer_dtl = await request.json()
-    update_q="update a set qty = {} from cart_Values a inner join customer_summary b on a.cId = b.cId where b.inStatus = 'IN' and b.cId = {} and a.productId = {}".format(
-              customer_dtl["qty"],customer_dtl["id"],customer_dtl["productId"])
+    update_q = "update a set qty = {} from cart_Values a inner join customer_summary b on a.cId = b.cId where b.inStatus = 'IN' and b.cId = {} and a.productId = {}".format(
+        customer_dtl["qty"], customer_dtl["id"], customer_dtl["productId"])
     executeInsertQuery(update_q)
     return "Success"
 
-@app.get("/cartFetch")
+
+@app.post("/cartFetch")
 async def cart(request: Request):
     customer_dtl = await request.json()
-    select_q="select a.cId, inStatus, productId from cart_values a inner join customer_summary b on a.cId = b.cId where a.cId = '{}' and inStatus = 'in'".format(
-                customer_dtl["cid"])
+    select_q = "select a.cId, inStatus, productId from cart_values a inner join customer_summary b on a.cId = b.cId where a.cId = '{}' and inStatus = 'in'".format(
+        customer_dtl["cid"])
     print(select_q)
     cname = executeSelectQuery(select_q)
     print(cname)
-    fields = {"cid": 0,"status":1,"itemid":2 }
+    fields = {"cid": 0, "status": 1, "itemid": 2}
     json_query_result = []
     for rows in cname:
         json_struct = {}
@@ -183,15 +213,15 @@ async def metrics(request: Request):
 
     fields = {"productName": 0, "productId": 1, "occurrences": 2}
     keyVal = {'customerInStore': (getCustInStore, 0), 'VisitedCustomersCount': (getUniqueCustomers, 0),
-                "AverageTimeSpent": (getAverageTimeSpent, 0), "OppurtunityLost": (getOppurtunityLost, 0),
-                "ReturnedToShelf": (getProductReturnedtoShelf, fields),
-                "MostAttentionSeeks": (getAttentionSeeks, fields)}
+              "AverageTimeSpent": (getAverageTimeSpent, 0), "OppurtunityLost": (getOppurtunityLost, 0),
+              "ReturnedToShelf": (getProductReturnedtoShelf, fields),
+              "MostAttentionSeeks": (getAttentionSeeks, fields)}
     for key, value in keyVal.items():
         query_result = executeQuery(value[0])
         extracted_value = extractValueFromQueryResult(query_result, value[1])
         genDictionary(key, extracted_value)
     print(stats)
-    return {"stats":stats}
+    return {"stats": stats}
 
 
 if __name__ == "__main__":
